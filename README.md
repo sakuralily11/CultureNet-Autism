@@ -8,7 +8,12 @@ The culturalized deep models (CultureNet) follow the same architecture of GenNet
 
 ## Citation 
 
-If you use this code or these benchmarks in your research, please cite the following publication: Ognjen Rudovic, Yuria Utsumi, Jaeryoung Lee, Javier Hernandez, Eduardo Castelló Ferrer, Björn Schuller, and Rosalind Picard. CultureNet: A Personalized Deep Learning Approach for Engagement Intensity Estimation from Face Images of Children with Autism. 
+If you use this code or these benchmarks in your research, **please cite the following publications**: 
+
+Ognjen Rudovic, Jaeryoung Lee, Lea Mascarell-Maricic, Björn Schuller, and Rosalind Picard. Measuring Engagement in Robot-Assisted Autism Therapy: A Cross-Cultural Study. 
+Available via Frontiers in Robotics and AI: [paper](https://doi.org/10.3389/frobt.2017.00036)
+
+Ognjen Rudovic, Yuria Utsumi, Jaeryoung Lee, Javier Hernandez, Eduardo Castelló Ferrer, Björn Schuller, and Rosalind Picard. CultureNet: A Personalized Deep Learning Approach for Engagement Intensity Estimation from Face Images of Children with Autism. 
 
 ## Deep Learning Models 
 
