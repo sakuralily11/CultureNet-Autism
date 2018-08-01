@@ -4,7 +4,7 @@ CultureNet is a package for building generalized and culturalized deep models to
 
 The baseline generalized deep models (GenNet) are deep convolutional networks composed of layers of the ResNet, a pre-trained deep network, as well as additional network layers. 
 
-The culturalized deep models (CultureNet) follow the same architecture of GenNet; however, after training all layers with joint-culture data, the model freezes network parameters and use culture-specific data to fine-tune the last layer of the network. 
+The culturalized deep models (CultureNet) follow the same architecture of GenNet; however, after training all layers with joint-culture data, the model freezes network parameters and uses culture-specific and/or child-specific data to fine-tune the last layer of the network. 
 
 ## Citation 
 
