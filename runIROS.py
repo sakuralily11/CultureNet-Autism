@@ -1,6 +1,6 @@
 from deepNet import deepNet
 from utils import load_data, leave_1_out_ids, all_children_ids, target_only_ids
-from models import run_m*
+from models import *
 
 from keras.models import Model
 from keras.layers import Dense, Input, concatenate, BatchNormalization, Activation, Dropout
