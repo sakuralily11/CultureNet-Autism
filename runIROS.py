@@ -30,41 +30,58 @@ if __name__ == '__main__':
     c0_IDs_1Out = leave_1_out_ids(c0_IDs)
     c1_IDs_1Out = leave_1_out_ids(c1_IDs)
 
-    c0_IDs_All = all_children_ids(c0_IDs)
-    c1_IDs_All = all_children_ids(c1_IDs)
+    c0_IDs_All = [c0_IDs]*3
+    c1_IDs_All = [c1_IDs]*3
 
-    c0_IDs_Target = target_only_ids(c0_IDs)
-    c1_IDs_Target = target_only_ids(c1_IDs)
+    c0_IDs_targetRep = all_children_ids(c0_IDs)
+    c1_IDs_targetRep = all_children_ids(c1_IDs)
 
-    # Loop over folds 
+    c0_IDs_targetOnly = target_only_ids(c0_IDs)
+    c1_IDs_targetOnly = target_only_ids(c1_IDs)
+
+    c0_data_All = load_data(c0_IDs_All, 0, data_proportion=[0.2,0,0.2,0.8])
+    c1_data_All = load_data(c1_IDs_All, 1, data_proportion=[0.2,0,0.2,0.8])
+
+    m7_joint_data = []
+    for p in range(len(c0_data_All)):
+        m7_joint_data.append(np.concatenate((c0_data_All[p], c1_data_All[p]), axis=0))
+    m7_joint_data = tuple(m7_joint_data)
+
+    """
+    Preliminary Model 7 - Joint Culture / SD: 
+    Train on both cultures, fine tune with culture A 
+    """
+    c0_m7_prelim_weights, c1_m7_prelim_weights = run_prelim_m7(m7_joint_data, c0_data_All, c1_data_All)
+
+    # Loop over target children  
     for i in range(len(c0_IDs_1Out)): 
 
         c0_data = load_data(c0_IDs_1Out[i], 0, data_proportion=[1,0,0.2,0.8])
         c1_data = load_data(c1_IDs_1Out[i], 1, data_proportion=[1,0,0.2,0.8])
 
-        c0_data_All20 = load_data(c0_IDs_All[i], 0, data_proportion=[0.2,0,0.2,0.8])
-        c1_data_All20 = load_data(c1_IDs_All[i], 1, data_proportion=[0.2,0,0.2,0.8])
+        c0_data_targetRep = load_data(c0_IDs_targetRep[i], 0, data_proportion=[0.2,0,0.2,0.8])
+        c1_data_targetRep = load_data(c1_IDs_targetRep[i], 1, data_proportion=[0.2,0,0.2,0.8])
 
-        c0_data_Target20 = load_data(c0_IDs_Target[i], 0, data_proportion=[0.2,0,0.2,0.8])
-        c1_data_Target20 = load_data(c1_IDs_Target[i], 1, data_proportion=[0.2,0,0.2,0.8])
+        c0_data_targetOnly = load_data(c0_IDs_targetOnly[i], 0, data_proportion=[0.2,0,0.2,0.8])
+        c1_data_targetOnly = load_data(c1_IDs_targetOnly[i], 1, data_proportion=[0.2,0,0.2,0.8])
 
-        # Note: Increase iterations as needed (for validation)
-        for loop in range(1): 
+        # 10-fold k-validation 
+        for loop in range(10): 
 
-            print('---------- FOLD %s ----------'%(i+1))
-            print('---------- LOOP %s ----------'%(loop+1))
+            print('---------- CHILD {} ----------'.format(i+1))
+            print('---------- FOLD {} ----------'.format(loop+1))
 
             """ 
             Model 1 - Within Culture / SI: 
             Train and test on each culture 
             """ 
-            run_m1(c0_data, c1_data, 'c0_m1', 'c1_m1')
+            run_m1(c0_data, c1_data)
 
             """
             Model 2 - Between Culture / SI: 
             Train on culture A, test on culture B 
             """
-            run_m2(c0_data, c1_data, 'c0_m2', 'c1_m2')
+            run_m2(c0_data, c1_data)
 
             """
             Model 3 - Mixed Culture / SI: 
@@ -82,16 +99,18 @@ if __name__ == '__main__':
             Model 5 - Joint Culture / SD (GenNet): 
             Train and test on each culture, including 20% of target data 
             """
-            run_m5(c0_data_All20, c1_data_All20)
+            run_m5(c0_data_targetRep, c1_data_targetRep)
 
             """
             Model 6 - Individual / SD: 
             Train and test on each culture, using only 20% of target data 
             """
-            run_m6(c0_data_Target20, c1_data_Target20)
+            run_m6(c0_data_targetOnly, c1_data_targetOnly)
 
             """
             Model 7 - Joint Culture / SD: 
-            Train on both cultures, fine tune with culture A, fine tune with target data, test on culture A 
+            Train on both cultures (prelim), fine tune with culture A (prelim), fine tune with target data, test on culture A 
             """
-            run_m7(c0_IDs, c1_IDs, c0_IDs_Target, c1_IDs_Target)
+            run_m7(c0_data_targetOnly, c1_data_targetOnly, c0_m7_prelim_weights, c1_m7_prelim_weights)
+
+    # Process Data 

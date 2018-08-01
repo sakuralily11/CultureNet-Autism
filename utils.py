@@ -10,7 +10,8 @@ os.environ['PYTHONHASHSEED'] = '0'
 os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
 
 def load_data(data_ids, cul, data_proportion=[1,0,1,1]):
-    """ Loads data for a given country 
+    """ 
+    Loads data for a given country 
 
     PARAMETERS 
     data_ids: list of training, validation, and testing IDs 
@@ -60,7 +61,7 @@ def load_data(data_ids, cul, data_proportion=[1,0,1,1]):
 
     for val_id in data_ids[1]: # Loop over each validation ID 
         val_data = full_raw[full_raw[:,1] == val_id] # Retrieves all rows where first column has val_id 
-        rows, cols = val_data.shape 
+        rows, _ = val_data.shape 
         cutoff_val_1 = int(rows*data_proportion[1]) # Computes lower cutoff value for validation data, based on data_proportions input 
         cutoff_val_2 = int(rows*data_proportion[2]) # Computes upper cutoff value for validation data, based on data_proportions input 
 
@@ -86,7 +87,7 @@ def load_data(data_ids, cul, data_proportion=[1,0,1,1]):
 
     for test_id in data_ids[2]: # Loops over each testing ID 
         test_data = full_raw[full_raw[:,1] == test_id] # Retrieves all rows where first column has test_id 
-        rows, cols = test_data.shape
+        rows, _ = test_data.shape
         cutoff_test = int(rows*(1-data_proportion[3]))
 
         if id_test is None: 
@@ -105,6 +106,7 @@ def load_data(data_ids, cul, data_proportion=[1,0,1,1]):
     return id_train, id_val, id_test, x_train, x_val, x_test, y_train, y_val, y_test, country_train, country_val, country_test, frame_train, frame_val, frame_test
 
 def leave_1_out_ids(IDs):
+    """ Generates leave-1-out ID list """ 
 
     fold_list = []
     
@@ -115,6 +117,7 @@ def leave_1_out_ids(IDs):
     return fold_list
 
 def all_children_ids(IDs):
+    """ Generates all children ID list """ 
 
     fold_list = []
 
@@ -125,6 +128,7 @@ def all_children_ids(IDs):
     return fold_list
 
 def target_only_ids(IDs):
+    """ Generates target-only ID list """ 
 
     return list(map(lambda x:[[x], [x], [x]], IDs))
 
@@ -138,7 +142,7 @@ def _process(y_hat, y_lab, fun):
     y2 = [x for x in y_lab.T]
 
     out = []
-    for i, [_y1, _y2] in enumerate(zip(y1, y2)):
+    for _, [_y1, _y2] in enumerate(zip(y1, y2)):
         idx = _y2!=-1
         _y1 = _y1[idx]
         _y2 = _y2[idx]
@@ -149,7 +153,7 @@ def _process(y_hat, y_lab, fun):
     return np.array(out)
 
 def _icc(y_hat, y_lab, cas=3, typ=1):
-    """IntraClass Correlation"""
+    """ Computes intra-class correlation """
     def fun(y_hat,y_lab):
         y_hat = y_hat[None,:]
         y_lab = y_lab[None,:]
@@ -206,27 +210,6 @@ def _icc(y_hat, y_lab, cas=3, typ=1):
 
 def icc(y_hat, y_lab):
     return _icc(y_hat, y_lab)
-
-# def save_layer_weights(model, layer_name, dtype):
-#     weights = model.get_layer_weights(layer_name)
-#     with open('Weights/weights_{}_{}.pkl'.format(layer_name,dtype), 'wb') as f:
-#         pkl.dump(weights, f)
-
-# def set_layer_weights(model, layer_name, source_name,dtype):
-#     with open('Weights/weights_{}_{}.pkl'.format(source_name,dtype), 'rb') as f:
-#         wdata = pkl.load(f)
-#     model.set_layer_weights(layer_name, wdata)
-
-# def write_training_results(name, hist):
-#     # Note: name is the output file name
-#     if not os.path.exists('./TrainingResults'):
-#         os.makedirs('./TrainingResults')
-    
-#     for metric in ['val_mean_absolute_error', 'mean_absolute_error']:
-#         data = hist.history[metric]
-#         with open('./TrainingResults/{}.{}.csv'.format(name, metric), 'w') as f:
-#             for num in data:
-#                 f.write('{}\n'.format(num))
 
 if __name__ == '__main__':
     pass

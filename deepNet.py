@@ -6,12 +6,12 @@ from keras.utils import plot_model
 from keras.callbacks import EarlyStopping, CSVLogger
 from keras import backend as K
 import keras
+import os
+import tensorflow as tf
 import numpy as np
 import pickle as pkl
 
 # Control randomness
-import os
-import tensorflow as tf
 os.environ['PYTHONHASHSEED'] = '0'
 os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
 np.random.seed(42)
@@ -44,10 +44,10 @@ class deepNet(Model):
         self.compile(optimizer='adadelta', loss='mean_squared_error', metrics=['mae'])
         stopper = EarlyStopping(monitor='val_loss', min_delta=0.01, patience=4, mode='auto')
         self.fit(x_train, y_train, epochs=self.epochs, batch_size=self.batch_size, verbose=1, callbacks=[stopper], validation_data=(x_val,y_val))
-        self.save_weights('Weights/%s_weights.h5'%(dtype)) 
+        self.save_weights('Weights/{}_weights.h5'.format(dtype)) 
 
     def make_report(self, report_name, id_test, x_test, y_test, country_test, frame_test):
-        """Runs evaluate on the provided data and generates a detailed error report"""
+        """ Runs evaluate on the provided data and generates a detailed error report """
         if not os.path.exists('Reports/' + report_name):
             os.mkdir('Reports/' + report_name)
         results = self.predict(x_test)
@@ -76,9 +76,10 @@ class deepNet(Model):
         results = self.evaluate(x_test, y_test)
 
         # Generate report of summary statistics
-        with open('Reports/{}/summary_report.txt'.format(report_name), 'a') as f:
-            for metric_name, value in zip(self.metrics_names, results):
-                f.write('{}: {}\n'.format(metric_name, value))
-            f.write('ICC: {}'.format(icc_scores))
+        # with open('Reports/{}/c{}_id{}_icc_report.txt'.format(report_name, ), 'a') as f:
+        with open('Reports/{}/icc_report.txt'.format(report_name), 'a') as f:
+            # for metric_name, value in zip(self.metrics_names, results):
+            #     f.write('{}: {}\n'.format(metric_name, value))
+            f.write('{}\n'.format(icc_scores))
 
         return results
