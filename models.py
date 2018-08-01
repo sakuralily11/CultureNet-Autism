@@ -61,10 +61,10 @@ def __run_deep_joint(data_cA, data_cB, prelim_data, dtype_prelim_cA, dtype_final
     """ 
 
     # Build preliminary model 
-    prelim_weights = _run_deep_net(prelim_data, dtype_prelim_cA)
+    prelim_weights = __run_deep_net(prelim_data, dtype_prelim_cA)
 
     # Build culture-specific model (for culture A)
-    _ = _run_deep_net(data_cA, dtype_final_cA, trainable=[False,False,False,False,True], weights=prelim_weights)
+    _ = __run_deep_net(data_cA, dtype_final_cA, trainable=[False,False,False,False,True], weights=prelim_weights)
 
     return None 
 
@@ -309,7 +309,7 @@ def run_m7(c0_IDs, c1_IDs, c0_IDs_Target, c1_IDs_Target):
         joint_data.append(np.concatenate((c0_m7_data[p], c1_m7_data[p]), axis=0))
     joint_data = tuple(joint_data)
 
-    prelim_weights = _run_deep_net(joint_data, 'm7_prelim')
+    prelim_weights = __run_deep_net(joint_data, 'm7_prelim')
 
     # Part B: Culture Specific Model (train & validate on 20% of all children)
     c0_m7_prelim_weights = __run_deep_net(c0_m7_data, 'c0_m7_prelim', trainable=[False,False,False,False,True], weights=prelim_weights)
