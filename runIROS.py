@@ -8,12 +8,13 @@ from keras.utils import plot_model
 from keras.callbacks import EarlyStopping, CSVLogger
 from keras import backend as K
 import keras
+import os
+import pathlib
+import tensorflow as tf
 import numpy as np
 import pickle as pkl
 
 # Control randomness
-import os
-import tensorflow as tf
 os.environ['PYTHONHASHSEED'] = '0'
 os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
 np.random.seed(42)
@@ -23,6 +24,12 @@ rn.seed(12345)
 tf.set_random_seed(1234)
 
 if __name__ == '__main__':
+
+    CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+    REPORTS_FOLDER_DIR = os.path.join(CURRENT_DIR, 'Reports')
+    WEIGHTS_FOLDER_DIR = os.path.join(CURRENT_DIR, 'Weights')
+    pathlib.Path(REPORTS_FOLDER_DIR).mkdir(parents=True, exist_ok=True) 
+    pathlib.Path(WEIGHTS_FOLDER_DIR).mkdir(parents=True, exist_ok=True) 
 
     c0_IDs = [1,2,3,4,6,7,8,9,10,11,12,13,14,16,17] # Culture index 0
     c1_IDs = [2,3,4,5,6,7,8,9,10,13,14,15,17,18,20] # Culture index 1
