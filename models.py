@@ -42,6 +42,7 @@ def __run_deep_net(data, dtype, trainable=[True,True,True,True,True], weights=No
         model.train_model(x_train, y_train, x_val, y_val, dtype)
     else: 
         model.set_weights(weights)
+        model.compile(optimizer='adadelta', loss='mean_squared_error', metrics=['mae'])
     _ = model.make_report('ExperimentdS_deep_'+dtype, id_test, x_test, y_test, culture_test, frame_test)
 
     optimized_weights = model.get_weights()
