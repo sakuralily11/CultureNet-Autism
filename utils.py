@@ -148,7 +148,7 @@ def merge_data(cA_data, cB_data):
 
     frame_train = np.concatenate((cA_data[12], cB_data[12], cB_data[13], cB_data[14]), axis=0)
     frame_val, frame_test = cA_data[13], cA_data[14]
-    
+
     prelim_data = (id_train, id_val, id_test, x_train, x_val, x_test, y_train, y_val, y_test, culture_train, culture_val, culture_test, frame_train, frame_val, frame_test)
 
     return prelim_data
@@ -231,6 +231,50 @@ def _icc(y_hat, y_lab, cas=3, typ=1):
 
 def icc(y_hat, y_lab):
     return _icc(y_hat, y_lab)
+
+def process_icc(REPORTS_FOLDER_DIR): 
+    """ 
+    Processes ICC data 
+    Saves file with average ICC per culture +/- STD 
+    """ 
+
+    REPORTS_SUB_DIR = np.array([d for d in os.listdir(REPORTS_FOLDER_DIR) if os.path.isdir(os.path.join(REPORTS_FOLDER_DIR,d))])
+    FINAL_REPORTS_SUB_DIR = [c for c in REPORTS_SUB_DIR if not(c.endswith('prelim'))]
+    
+    for report in FINAL_REPORTS_SUB_DIR: 
+        CURRENT_REPORTS_SUB_DIR = os.path.join(REPORTS_FOLDER_DIR, report)
+        ICC_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'icc_report.txt')
+        ICC_FINAL_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'icc_final_report.txt')
+        icc_data = np.genfromtxt(ICC_DIR, delimiter=',')
+        
+        cultures = np.unique(icc_data[:,0])
+        culture_avg_icc = np.zeros((len(cultures),2))
+        
+        for c in cultures: 
+            ICC_CULTURE_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'c{}_icc_report.txt'.format(int(c)))
+            
+            culture_rows = np.where(icc_data[:,0] == c)[0] # get row numbers for culture c
+            culture_ids = icc_data[culture_rows,1] # get ID rows for culture c 
+            unique_ids = np.unique(culture_ids) # get unique IDs for culture c 
+            
+            culture_icc = None 
+            
+            for u in unique_ids: 
+                all_id_rows = np.where(icc_data[:,1] == u)[0] 
+                id_rows = np.intersect1d(all_id_rows, culture_rows) # get ID rows for child u 
+                id_icc = icc_data[id_rows, 2] # get ICC data for child u 
+                avg_icc = np.mean(id_icc) # get average ICC for child u 
+                
+                culture_icc = np.array([[u, avg_icc]]) if culture_icc is None else np.vstack((culture_icc, np.array([[u, avg_icc]])))
+                
+            np.savetxt(ICC_CULTURE_DIR, culture_icc)
+            
+            culture_avg_icc[cultures.tolist().index(c), 0] = np.mean(culture_icc, axis=0)[1]
+            culture_avg_icc[cultures.tolist().index(c), 1] = np.std(culture_icc[:,1])
+            
+        np.savetxt(ICC_FINAL_DIR, culture_avg_icc)
+
+    return None 
 
 if __name__ == '__main__':
     pass

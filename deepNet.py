@@ -76,9 +76,9 @@ class deepNet(Model):
         for c in cultures:
             culture_rows = np.where(country_test == c)[0] # get row numbers for culture c 
             culture_ids = id_test[culture_rows] # get ID rows for culture c 
-            unique_IDs = np.unique(culture_ids) # get unique IDs for culture c 
+            unique_ids = np.unique(culture_ids) # get unique IDs for culture c 
 
-            for u in unique_IDs: 
+            for u in unique_ids: 
                 all_id_rows = np.where(id_test == u)[0]
                 id_rows = np.intersect1d(all_id_rows, culture_rows) # get ID rows for child u 
                 id_icc = icc(results[id_rows], y_test[id_rows])[0] # compute ICC for child u 
