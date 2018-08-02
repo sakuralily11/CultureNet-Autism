@@ -1,15 +1,11 @@
 from utils import icc
 
 from keras.models import Model
-from keras.layers import Dense, Input, concatenate, BatchNormalization, Activation, Dropout
-from keras.utils import plot_model
-from keras.callbacks import EarlyStopping, CSVLogger
-from keras import backend as K
-import keras
+from keras.layers import Dense, Input 
+from keras.callbacks import EarlyStopping 
 import os
 import tensorflow as tf
 import numpy as np
-import pickle as pkl
 
 # Control randomness
 os.environ['PYTHONHASHSEED'] = '0'
@@ -22,12 +18,6 @@ tf.set_random_seed(1234)
 
 class deepNet(Model):
     def __init__(self, input_dim, trainable=[True,True,True,True,True], lsize0=500, lsize1=200, lsize2=100, lsize3=50, epochs=20, batch_size=128, **kwargs):
-        # self.input_dim = input_dim
-        # self.trainable = trainable
-        # self.lsize0 = lsize0
-        # self.lsize1 = lsize1
-        # self.lsize2 = lsize2
-        # self.lsize3 = lsize3 
         self.epochs = epochs 
         self.batch_size = batch_size
 
