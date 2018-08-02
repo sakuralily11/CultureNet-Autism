@@ -22,12 +22,12 @@ tf.set_random_seed(1234)
 
 class deepNet(Model):
     def __init__(self, input_dim, trainable=[True,True,True,True,True], lsize0=500, lsize1=200, lsize2=100, lsize3=50, epochs=20, batch_size=128, **kwargs):
-        self.input_dim = input_dim
-        self.trainable = trainable
-        self.lsize0 = lsize0
-        self.lsize1 = lsize1
-        self.lsize2 = lsize2
-        self.lsize3 = lsize3 
+        # self.input_dim = input_dim
+        # self.trainable = trainable
+        # self.lsize0 = lsize0
+        # self.lsize1 = lsize1
+        # self.lsize2 = lsize2
+        # self.lsize3 = lsize3 
         self.epochs = epochs 
         self.batch_size = batch_size
 
@@ -76,10 +76,52 @@ class deepNet(Model):
         results = self.evaluate(x_test, y_test)
 
         # Generate report of summary statistics
-        # with open('Reports/{}/c{}_id{}_icc_report.txt'.format(report_name, ), 'a') as f:
-        with open('Reports/{}/icc_report.txt'.format(report_name), 'a') as f:
-            # for metric_name, value in zip(self.metrics_names, results):
-            #     f.write('{}: {}\n'.format(metric_name, value))
-            f.write('{}\n'.format(icc_scores))
+        cultures = np.unique(country_test)
+        # IDs = np.unique(id_test)
+        # culture_rows = []
+        # id_rows = []
+        # culture_ids = []
+        for c in cultures:
+            # culture_rows.append(np.where(country_test == c)[0]) # get rows numbers for culture c 
+            # id_rows.append(id_test[np.where(country_test == c)[0]]) # get ID rows for culture c 
+            # culture_ids.append(np.unique(id_test[np.where(country_test == c)[0]])) # get unique IDs for culture c 
+
+            culture_rows = np.where(country_test == c)[0] # get row numbers for culture c 
+            culture_ids = id_test[culture_rows] # get ID rows for culture c 
+            unique_IDs = np.unique(culture_ids) # get unique IDs for culture c 
+
+            for u in unique_IDs: 
+                all_id_rows = np.where(id_test == u)
+                id_rows = np.intersect1d(all_id_rows, culture_rows) # get ID rows for child u 
+
+                id_icc = icc(results[id_rows], y_test[id_rows]) # compute ICC for child u 
+                entry = '{},{},{},{},\n'.format(c, u, id_icc)
+                
+                with open('Reports/{}/icc_report.txt'.format(report_name), 'a') as f:
+                    f.write(entry)
+
+                
+
+
+                
+
+
+        # # for i in IDs: 
+
+
+        # ## TODO: compute icc per child and save 
+        # # with open('Reports/{}/c{}_id{}_icc_report.txt'.format(report_name, ), 'a') as f:
+        # with open('Reports/{}/icc_report.txt'.format(report_name), 'a') as f:
+        #     # for metric_name, value in zip(self.metrics_names, results):
+        #     #     f.write('{}: {}\n'.format(metric_name, value))
+        #     # f.write('{}\n'.format(icc_scores))
+        #     for row in range(len(results)):
+        #         row_icc = icc(results[row], y_test[row])
+        #         entry = '{},{},{},{},\n'.format(country_test[row], id_test[row], frame_test[row], row_icc)
+        #         # entry = ','.join([str(i) for i in country_test[row]]) + ','
+        #         # entry += ','.join([str(i) for i in id_test[row]]) + ','
+        #         # entry += ','.join([str(i) for i in frame_test[row]]) + ','
+        #         # entry += ','.join([str(i) for i in row_icc]) + '\n'
+        #         f.write(entry)
 
         return results
