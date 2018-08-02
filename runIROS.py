@@ -106,7 +106,7 @@ if __name__ == '__main__':
             Model 4 - Joint Culture / SI (CultureNet): 
             Train on both cultures, fine tune with culture A, test on culture A 
             """
-            run_m4(c0_data, c1_data)
+            run_m4(c0_data, c1_data, c0_data_merged, c1_data_merged, c0_m3_weights, c1_m3_weights)
 
             """
             Model 5 - Joint Culture / SD (GenNet): 
