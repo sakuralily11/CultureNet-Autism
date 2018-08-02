@@ -112,7 +112,7 @@ def leave_1_out_ids(IDs):
     
     for i in range(len(IDs)):
         rolled = np.roll(IDs, i).tolist()
-        fold_list.append([rolled[1:], rolled[0:1], rolled[0:1]])
+        fold_list.append([rolled[1:], rolled[1:], rolled[0:1]])
     
     return fold_list
 
@@ -131,6 +131,27 @@ def target_only_ids(IDs):
     """ Generates target-only ID list """ 
 
     return list(map(lambda x:[[x], [x], [x]], IDs))
+
+def merge_data(cA_data, cB_data): 
+    """ Merges data for models 3 and 4 """ 
+    id_train = np.concatenate((cA_data[0], cB_data[0], cB_data[1], cB_data[2]), axis=0)
+    id_val, id_test = cA_data[1], cA_data[2]
+
+    x_train = np.concatenate((cA_data[3], cB_data[3], cB_data[4], cB_data[5]), axis=0)
+    x_val, x_test = cA_data[4], cA_data[5]
+
+    y_train = np.concatenate((cA_data[6], cB_data[6], cB_data[7], cB_data[8]), axis=0)
+    y_val, y_test = cA_data[7], cA_data[8]
+
+    culture_train = np.concatenate((cA_data[9], cB_data[9], cB_data[10], cB_data[11]), axis=0)
+    culture_val, culture_test = cA_data[10], cA_data[11]
+
+    frame_train = np.concatenate((cA_data[12], cB_data[12], cB_data[13], cB_data[14]), axis=0)
+    frame_val, frame_test = cA_data[13], cA_data[14]
+    
+    prelim_data = (id_train, id_val, id_test, x_train, x_val, x_test, y_train, y_val, y_test, culture_train, culture_val, culture_test, frame_train, frame_val, frame_test)
+
+    return prelim_data
 
 def _process(y_hat, y_lab, fun):
     """

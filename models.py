@@ -114,71 +114,31 @@ def run_m2(c0_data, c1_data):
 
     return None
 
-def run_m3(c0_IDs, c1_IDs, c0_IDs_1Out, c1_IDs_1Out, fold):
+def run_m3(c0_data_merged, c1_data_merged):
     """ 
     Runs Model 3 - Mixed Culture / SI 
     Train on both cultures, test on each culture 
+    Returns model weights 
 
     PARAMETERS 
-    c0_IDs: list of IDs for culture 0 
-    c1_IDs: list of IDs for culture 1 
-    c0_IDs_1Out: list of leave-1-out IDs for culture 0 
-    c1_IDs_1Out: list of leave-1-out IDs for culture 1 
-    fold: int of current fold 
+    c0_data_merged: tuple of merged data, with culture 0 as target 
+    c1_data_merged: tuple of merged data, with culture 1 as target 
     """ 
 
     print('---------- Running Model 3 ----------')
 
-    culture = [0,1]
+    """ Train on both cultures, test on Japan """
 
-    # Remove test IDs from list 
-    c0_m3_IDs = list(set(c0_IDs).difference(set(c0_IDs_1Out[fold][2])))
-    c1_m3_IDs = list(set(c1_IDs).difference(set(c1_IDs_1Out[fold][2])))
+    c0_m3_weights = __run_deep_net(c0_data_merged, 'm3') 
 
-    c0_m3_train_IDs = []
-    c1_m3_train_IDs = []
-
-    # Loop 10 times to choose train data 
-    for _ in range(10): 
-        c = rn.choice(culture) 
-        if c == 0: 
-            rand_train = rn.choice(c0_m3_IDs)
-            c0_m3_train_IDs.append(rand_train)
-            c0_m3_IDs.remove(rand_train)
-        else: 
-            rand_train = rn.choice(c1_m3_IDs)
-            c1_m3_train_IDs.append(rand_train)
-            c1_m3_IDs.remove(rand_train)
-
-    c0_test_IDs = c0_IDs_1Out[fold][2]
-    c1_test_IDs = c1_IDs_1Out[fold][2]
-    c0_val_IDs = c0_IDs_1Out[fold][1]
-    c1_val_IDs = c1_IDs_1Out[fold][1]
-
-    c0_m3_data_IDs = [c0_m3_train_IDs, c0_val_IDs, c0_test_IDs]
-    c1_m3_data_IDs = [c1_m3_train_IDs, c1_val_IDs, c1_test_IDs]
-
-    c0_m3_data = load_data(c0_m3_data_IDs, 0, data_proportion=[1,0,0.2,0.8])
-    c1_m3_data = load_data(c1_m3_data_IDs, 1, data_proportion=[1,0,0.2,0.8])
-
-    # Merge datasets  
-    merged_data = []
-    for q in range(len(c0_m3_data)):
-        if c0_m3_data[q] is None:
-            merged_data.append(c1_m3_data[q])
-        elif c1_m3_data[q] is None:
-            merged_data.append(c0_m3_data[q])
-        else: 
-            merged_data.append(np.concatenate((c0_m3_data[q], c1_m3_data[q]), axis=0))
-    merged_data = tuple(merged_data)
-
-    _ = __run_deep_net(merged_data, 'm3') 
+    """ Train on both cultures, test on Serbia """
+    c1_m3_weights = __run_deep_net(c0_data_merged, 'm3') 
 
     print('---------- Completed Model 3 ----------')
 
-    return None
+    return c0_m3_weights, c1_m3_weights
 
-def run_m4(c0_data, c1_data): 
+def run_m4(c0_data, c1_data, c0_data_merged, c1_data_merged, c0_m3_weights, c1_m3_weights): 
     """ 
     Runs Model 4 - Joint Culture / SI (CultureNet)
     Train on both cultures, fine tune with culture A, test on culture A 
@@ -186,53 +146,27 @@ def run_m4(c0_data, c1_data):
     PARAMETERS 
     c0_data: tuple of loaded data for culture 0 
     c1_data: tuple of loaded data for culture 1 
+    c0_data_merged: tuple of merged data, with culture 0 as target 
+    c1_data_merged: tuple of merged data, with culture 1 as target 
+    c0_m3_weights: weights from model 3 for culture 0 
+    c1_m3_weights: weights from model 3 for culture 1 
     """ 
 
     print('---------- Running Model 4 ----------')
 
     """ Train on both cultures, fine tune and test on Japan """
 
-    # Merge culture data for initial training (test & val on Japan)
-    id_train = np.concatenate((c0_data[0], c1_data[0], c1_data[1], c1_data[2]), axis=0)
-    id_val, id_test = c0_data[1], c0_data[2]
-
-    x_train = np.concatenate((c0_data[3], c1_data[3], c1_data[4], c1_data[5]), axis=0)
-    x_val, x_test = c0_data[4], c0_data[5]
-
-    y_train = np.concatenate((c0_data[6], c1_data[6], c1_data[7], c1_data[8]), axis=0)
-    y_val, y_test = c0_data[7], c0_data[8]
-
-    culture_train = np.concatenate((c0_data[9], c1_data[9], c1_data[10], c1_data[11]), axis=0)
-    culture_val, culture_test = c0_data[10], c0_data[11]
-
-    frame_train = np.concatenate((c0_data[12], c1_data[12], c1_data[13], c1_data[14]), axis=0)
-    frame_val, frame_test = c0_data[13], c0_data[14]
-
-    prelim_data = (id_train, id_val, id_test, x_train, x_val, x_test, y_train, y_val, y_test, culture_train, culture_val, culture_test, frame_train, frame_val, frame_test)
-
-    __run_deep_joint(c0_data, c1_data, prelim_data, 'm4_prelim', 'm4_final')
+    if c0_m3_weights is None: 
+        __run_deep_joint(c0_data, c1_data, c0_data_merged, 'm4_prelim', 'm4_final')
+    else: 
+        _ = __run_deep_net(c0_data, 'm4_final', trainable=[False,False,False,False,True], weights=c0_m3_weights)
 
     """ Train on both cultures, fine tune and test on Serbia """ 
 
-    # Merge culture data for initial training (test & val on Serbia)
-    id_train = np.concatenate((c1_data[0], c0_data[0], c0_data[1], c0_data[2]), axis=0)
-    id_val, id_test = c1_data[1], c1_data[2]
-
-    x_train = np.concatenate((c1_data[3], c0_data[3], c0_data[4], c0_data[5]), axis=0)
-    x_val, x_test = c1_data[4], c1_data[5]
-
-    y_train = np.concatenate((c1_data[6], c0_data[6], c0_data[7], c0_data[8]), axis=0)
-    y_val, y_test = c1_data[7], c1_data[8]
-
-    culture_train = np.concatenate((c1_data[9], c0_data[9], c0_data[10], c0_data[11]), axis=0)
-    culture_val, culture_test = c1_data[10], c1_data[11]
-
-    frame_train = np.concatenate((c1_data[12], c0_data[12], c0_data[13], c0_data[14]), axis=0)
-    frame_val, frame_test = c1_data[13], c1_data[14]
-
-    prelim_data = (id_train, id_val, id_test, x_train, x_val, x_test, y_train, y_val, y_test, culture_train, culture_val, culture_test, frame_train, frame_val, frame_test)
-
-    __run_deep_joint(c1_data, c0_data, prelim_data, 'm4_prelim', 'm4_final')
+    if c1_m3_weights is None: 
+        __run_deep_joint(c1_data, c0_data, c1_data_merged, 'm4_prelim', 'm4_final')
+    else:
+        _ = __run_deep_net(c1_data, 'm4_final', trainable=[False,False,False,False,True], weights=c1_m3_weights)
 
     print('---------- Completed Model 4 ----------')
 

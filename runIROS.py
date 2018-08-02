@@ -1,5 +1,5 @@
 from deepNet import deepNet
-from utils import load_data, leave_1_out_ids, all_children_ids, target_only_ids
+from utils import load_data, leave_1_out_ids, all_children_ids, target_only_ids, merge_data
 from models import *
 
 from keras.models import Model
@@ -63,8 +63,8 @@ if __name__ == '__main__':
     # Loop over target children  
     for i in range(len(c0_IDs_1Out)): 
 
-        c0_data = load_data(c0_IDs_1Out[i], 0, data_proportion=[1,0,0.2,0.8])
-        c1_data = load_data(c1_IDs_1Out[i], 1, data_proportion=[1,0,0.2,0.8])
+        c0_data = load_data(c0_IDs_1Out[i], 0, data_proportion=[0.8,0.8,1,0.8])
+        c1_data = load_data(c1_IDs_1Out[i], 1, data_proportion=[0.8,0.8,1,0.8])
 
         c0_data_targetRep = load_data(c0_IDs_targetRep[i], 0, data_proportion=[0.2,0,0.2,0.8])
         c1_data_targetRep = load_data(c1_IDs_targetRep[i], 1, data_proportion=[0.2,0,0.2,0.8])
@@ -72,11 +72,17 @@ if __name__ == '__main__':
         c0_data_targetOnly = load_data(c0_IDs_targetOnly[i], 0, data_proportion=[0.2,0,0.2,0.8])
         c1_data_targetOnly = load_data(c1_IDs_targetOnly[i], 1, data_proportion=[0.2,0,0.2,0.8])
 
+        c0_data_merged = merge_data(c0_data, c1_data)
+        c1_data_merged = merge_data(c1_data, c0_data)
+
         # 10-fold k-validation 
         for loop in range(10): 
 
             print('---------- CHILD {} ----------'.format(i+1))
             print('---------- FOLD {} ----------'.format(loop+1))
+
+            c0_m3_weights = None 
+            c1_m3_weights = None 
 
             """ 
             Model 1 - Within Culture / SI: 
@@ -94,7 +100,7 @@ if __name__ == '__main__':
             Model 3 - Mixed Culture / SI: 
             Train on both cultures, test on each culture 
             """
-            run_m3(c0_IDs, c1_IDs, c0_IDs_1Out, c1_IDs_1Out, i)
+            c0_m3_weights, c1_m3_weights = run_m3(c0_data_merged, c1_data_merged)
 
             """
             Model 4 - Joint Culture / SI (CultureNet): 
