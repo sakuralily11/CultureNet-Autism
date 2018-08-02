@@ -78,3 +78,6 @@ class deepNet(Model):
                     f.write(entry)
         
         return results 
+
+if __name__ == '__main__':
+    pass

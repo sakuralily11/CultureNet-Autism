@@ -1,15 +1,8 @@
 from deepNet import deepNet
-from utils import load_data
 
-from keras.models import Model
-from keras.layers import Dense, Input, concatenate, BatchNormalization, Activation, Dropout
-from keras.utils import plot_model
-from keras.callbacks import EarlyStopping, CSVLogger
 from keras import backend as K
-import keras
 import os
 import numpy as np
-import pickle as pkl
 import tensorflow as tf
 
 # Control randomness
@@ -263,3 +256,6 @@ def run_m7(c0_data_targetOnly, c1_data_targetOnly, c0_m7_prelim_weights, c1_m7_p
     print('---------- Completed Model 7 ----------')
 
     return None
+
+if __name__ == '__main__':
+    pass 
