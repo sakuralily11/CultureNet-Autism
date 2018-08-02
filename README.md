@@ -6,6 +6,8 @@ The baseline generalized deep models (GenNet) are deep convolutional networks co
 
 The culturalized deep models (CultureNet) follow the same architecture of GenNet; however, after training all layers with joint-culture data, the model freezes network parameters and uses culture-specific and/or child-specific data to fine-tune the last layer of the network. 
 
+Face image data provided in this repository are unidentifiable facial features, obtained in the output of the fine-tuned residual network (ResNet), a deep network optimized for object classification. 
+
 ## Citation 
 
 If you use this code or these benchmarks in your research, **please cite the following publications**: 
@@ -49,8 +51,20 @@ The joint deep model is trained on data from both cultures, then the last layer 
 
 ## Getting Started 
 
+CultureNet allows for prediction of engagement levels from facial features of autistic children, obtained in the output of ResNet. 
+
 ### Installation 
 
-## Running Tests 
+To install CultureNet, clone the repository:
 
-## References  
+```
+$ git clone https://github.com/yuriautsumi/CultureNet-Autism.git 
+```
+
+The requirements can be installed via [pip](https://pypi.python.org/pypi/pip) as follows (use ```sudo``` if necessary): 
+
+```
+$ pip install -r requirements.txt 
+```
+
+To demo, run the ```runIROS.py``` script. 
