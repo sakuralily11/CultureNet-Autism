@@ -48,8 +48,6 @@ if __name__ == '__main__':
 
     c0_data_All = load_data(c0_IDs_All, 0, data_proportion=[0.2,0,0.2,0.8])
     c1_data_All = load_data(c1_IDs_All, 1, data_proportion=[0.2,0,0.2,0.8])
-    
-    print('done')
 
     m7_joint_data = []
     for p in range(len(c0_data_All)):
