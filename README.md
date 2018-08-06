@@ -18,6 +18,8 @@ Available via [Frontiers in Robotics and AI](https://doi.org/10.3389/frobt.2017.
 
 Ognjen Rudovic, Yuria Utsumi, Jaeryoung Lee, Javier Hernandez, Eduardo Castelló Ferrer, Björn Schuller, and Rosalind Picard. CultureNet: A Personalized Deep Learning Approach for Engagement Intensity Estimation from Face Images of Children with Autism. 
 
+Available [here](https://dam-prod.media.mit.edu/x/2018/08/04/iros2018_RudovicEtAl.pdf). 
+
 ## Deep Learning Models 
 
 CultureNet consists of seven subject-independent and subject-dependent GenNet and CultureNet models, trained with within-culture, cross-culture, mixed-culture, and joint-culture data, where C0 indicates data from Japan and C1 indicates data from Serbia. 
