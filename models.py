@@ -35,7 +35,7 @@ def __run_deep_net(data, dtype, trainable=[True,True,True,True,True], weights=No
         model.train_model(x_train, y_train, x_val, y_val, dtype)
     else: 
         model.set_weights(weights)
-        model.compile(optimizer='adadelta', loss='mean_squared_error', metrics=['mae'])
+        model.train_model(x_train, y_train, x_val, y_val, dtype)
     _ = model.make_report('ExperimentdS_deep_'+dtype, id_test, x_test, y_test, culture_test, frame_test)
 
     optimized_weights = model.get_weights()
@@ -125,7 +125,7 @@ def run_m3(c0_data_merged, c1_data_merged):
     c0_m3_weights = __run_deep_net(c0_data_merged, 'm3') 
 
     """ Train on both cultures, test on Serbia """
-    c1_m3_weights = __run_deep_net(c0_data_merged, 'm3') 
+    c1_m3_weights = __run_deep_net(c1_data_merged, 'm3') 
 
     print('---------- Completed Model 3 ----------')
 
@@ -150,16 +150,16 @@ def run_m4(c0_data, c1_data, c0_data_merged, c1_data_merged, c0_m3_weights, c1_m
     """ Train on both cultures, fine tune and test on Japan """
 
     if c0_m3_weights is None: 
-        __run_deep_joint(c0_data, c1_data, c0_data_merged, 'm4_prelim', 'm4_final')
+        __run_deep_joint(c0_data, c1_data, c0_data_merged, 'm4_prelim', 'm4')
     else: 
-        _ = __run_deep_net(c0_data, 'm4_final', trainable=[False,False,False,False,True], weights=c0_m3_weights)
+        _ = __run_deep_net(c0_data, 'm4', trainable=[False,False,False,False,True], weights=c0_m3_weights)
 
     """ Train on both cultures, fine tune and test on Serbia """ 
 
     if c1_m3_weights is None: 
-        __run_deep_joint(c1_data, c0_data, c1_data_merged, 'm4_prelim', 'm4_final')
+        __run_deep_joint(c1_data, c0_data, c1_data_merged, 'm4_prelim', 'm4')
     else:
-        _ = __run_deep_net(c1_data, 'm4_final', trainable=[False,False,False,False,True], weights=c1_m3_weights)
+        _ = __run_deep_net(c1_data, 'm4', trainable=[False,False,False,False,True], weights=c1_m3_weights)
 
     print('---------- Completed Model 4 ----------')
 

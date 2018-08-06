@@ -1,4 +1,5 @@
-from utils import icc
+from utils import icc, ccc, mae 
+from scipy.stats import pearsonr as pcc 
 
 from keras.models import Model
 from keras.layers import Dense, Input 
@@ -71,12 +72,29 @@ class deepNet(Model):
             for u in unique_ids: 
                 all_id_rows = np.where(id_test == u)[0]
                 id_rows = np.intersect1d(all_id_rows, culture_rows) # get ID rows for child u 
+
                 id_icc = icc(results[id_rows], y_test[id_rows])[0] # compute ICC for child u 
-                entry = '{},{},{},\n'.format(c, u, id_icc)
+                id_pcc = pcc(results[id_rows], y_test[id_rows])[0][0] # compute PCC for child u 
+                id_ccc = ccc(results[id_rows], y_test[id_rows]) # compute CCC for child u 
+                id_mae = mae(results[id_rows], y_test[id_rows]) # compute MAE for child u 
+
+                icc_entry = '{},{},{}\n'.format(c, u, id_icc)
+                pcc_entry = '{},{},{}\n'.format(c, u, id_pcc)
+                ccc_entry = '{},{},{}\n'.format(c, u, id_ccc)
+                mae_entry = '{},{},{}\n'.format(c, u, id_mae)
                 
                 with open('Reports/{}/icc_report.txt'.format(report_name), 'a') as f:
-                    f.write(entry)
-        
+                    f.write(icc_entry)
+
+                with open('Reports/{}/pcc_report.txt'.format(report_name), 'a') as f:
+                    f.write(pcc_entry)
+
+                with open('Reports/{}/ccc_report.txt'.format(report_name), 'a') as f:
+                    f.write(ccc_entry)
+
+                with open('Reports/{}/mae_report.txt'.format(report_name), 'a') as f:
+                    f.write(mae_entry)
+
         return results 
 
 if __name__ == '__main__':

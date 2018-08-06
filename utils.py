@@ -1,11 +1,8 @@
-import glob
 import numpy as np
 import os
 import pickle as pkl
-import random
-from copy import deepcopy
+from scipy.stats import pearsonr
 
-import tensorflow as tf
 os.environ['PYTHONHASHSEED'] = '0'
 os.environ['CUDA_VISIBLE_DEVICES'] = '0, 1'
 
@@ -232,10 +229,31 @@ def _icc(y_hat, y_lab, cas=3, typ=1):
 def icc(y_hat, y_lab):
     return _icc(y_hat, y_lab)
 
-def process_icc(REPORTS_FOLDER_DIR): 
+def ccc(y_hat, y_lab):
+    """ Computes concordance correlation coefficient """ 
+    pred_mean = np.mean(y_hat)
+    ref_mean = np.mean(y_lab)
+
+    pred_var = np.var(y_hat)
+    ref_var = np.var(y_lab)
+
+    covariance = np.mean((y_hat - pred_mean) * (y_lab - ref_mean))
+
+    return (2*covariance) / (pred_var+ref_var+np.power((pred_mean-ref_mean),2))
+
+def mae(y_hat, y_lab):
+    """ Computes mean absolute error """ 
+    y_hat = np.asarray(y_hat)
+    y_lab = np.asarray(y_lab)
+    diff = np.subtract(y_hat, y_lab)
+    abs_diff = np.fabs(diff)
+
+    return float(sum(abs_diff)/len(y_lab))
+
+def process_summary(REPORTS_FOLDER_DIR): 
     """ 
-    Processes ICC data 
-    Saves file with average ICC per culture +/- STD 
+    Processes data 
+    Saves file with average ICC per culture +/- STD, PCC per culture +/ STD, and CCC per culture +/ STD 
     """ 
 
     REPORTS_SUB_DIR = np.array([d for d in os.listdir(REPORTS_FOLDER_DIR) if os.path.isdir(os.path.join(REPORTS_FOLDER_DIR,d))])
@@ -245,34 +263,110 @@ def process_icc(REPORTS_FOLDER_DIR):
         CURRENT_REPORTS_SUB_DIR = os.path.join(REPORTS_FOLDER_DIR, report)
         ICC_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'icc_report.txt')
         ICC_FINAL_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'icc_final_report.txt')
+        PCC_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'pcc_report.txt')
+        PCC_FINAL_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'pcc_final_report.txt')
+        CCC_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'ccc_report.txt')
+        CCC_FINAL_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'ccc_final_report.txt')
+        MAE_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'mae_report.txt')
+        MAE_FINAL_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'mae_final_report.txt')
+
+        FINAL_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'final_report.txt')
+
         icc_data = np.genfromtxt(ICC_DIR, delimiter=',')
+        pcc_data = np.genfromtxt(PCC_DIR, delimiter=',')
+        ccc_data = np.genfromtxt(CCC_DIR, delimiter=',')
+        mae_data = np.genfromtxt(MAE_DIR, delimiter=',')
         
         cultures = np.unique(icc_data[:,0])
         culture_avg_icc = np.zeros((len(cultures),2))
-        
+        culture_avg_pcc = np.zeros((len(cultures),2))
+        culture_avg_ccc = np.zeros((len(cultures),2))
+        culture_avg_mae = np.zeros((len(cultures),2))
+    
         for c in cultures: 
             ICC_CULTURE_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'c{}_icc_report.txt'.format(int(c)))
+            PCC_CULTURE_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'c{}_pcc_report.txt'.format(int(c)))
+            CCC_CULTURE_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'c{}_ccc_report.txt'.format(int(c)))
+            MAE_CULTURE_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'c{}_mae_report.txt'.format(int(c)))
             
-            culture_rows = np.where(icc_data[:,0] == c)[0] # get row numbers for culture c
-            culture_ids = icc_data[culture_rows,1] # get ID rows for culture c 
-            unique_ids = np.unique(culture_ids) # get unique IDs for culture c 
+            culture_rows_icc = np.where(icc_data[:,0] == c)[0] # get row numbers for culture c
+            culture_ids_icc = icc_data[culture_rows_icc,1] # get ID rows for culture c 
+            unique_ids_icc = np.unique(culture_ids_icc) # get unique IDs for culture c 
             
+            culture_rows_pcc = np.where(pcc_data[:,0] == c)[0] # get row numbers for culture c
+            culture_ids_pcc = pcc_data[culture_rows_pcc,1] # get ID rows for culture c 
+            unique_ids_pcc = np.unique(culture_ids_pcc) # get unique IDs for culture c 
+            
+            culture_rows_ccc = np.where(ccc_data[:,0] == c)[0] # get row numbers for culture c
+            culture_ids_ccc = ccc_data[culture_rows_ccc,1] # get ID rows for culture c 
+            unique_ids_ccc = np.unique(culture_ids_ccc) # get unique IDs for culture c 
+
+            culture_rows_mae = np.where(mae_data[:,0] == c)[0] # get row numbers for culture c
+            culture_ids_mae = ccc_data[culture_rows_mae,1] # get ID rows for culture c 
+            unique_ids_mae = np.unique(culture_ids_mae) # get unique IDs for culture c 
+
+            assert np.array_equal(unique_ids_icc, unique_ids_pcc)
+            assert np.array_equal(unique_ids_icc, unique_ids_ccc)
+            assert np.array_equal(unique_ids_icc, unique_ids_mae)
+
             culture_icc = None 
+            culture_pcc = None 
+            culture_ccc = None 
+            culture_mae = None 
             
-            for u in unique_ids: 
-                all_id_rows = np.where(icc_data[:,1] == u)[0] 
-                id_rows = np.intersect1d(all_id_rows, culture_rows) # get ID rows for child u 
-                id_icc = icc_data[id_rows, 2] # get ICC data for child u 
+            for u in unique_ids_icc: 
+                all_id_rows_icc = np.where(icc_data[:,1] == u)[0] 
+                id_rows_icc = np.intersect1d(all_id_rows_icc, culture_rows_icc) # get ID rows for child u 
+                
+                all_id_rows_pcc = np.where(pcc_data[:,1] == u)[0] 
+                id_rows_pcc = np.intersect1d(all_id_rows_pcc, culture_rows_pcc) # get ID rows for child u         
+                
+                all_id_rows_ccc = np.where(ccc_data[:,1] == u)[0] 
+                id_rows_ccc = np.intersect1d(all_id_rows_ccc, culture_rows_ccc) # get ID rows for child u     
+
+                all_id_rows_mae = np.where(mae_data[:,1] == u)[0] 
+                id_rows_mae = np.intersect1d(all_id_rows_mae, culture_rows_mae) # get ID rows for child u     
+
+                id_icc = icc_data[id_rows_icc, 2] # get ICC data for child u 
                 avg_icc = np.mean(id_icc) # get average ICC for child u 
-                
+
+                id_pcc = pcc_data[id_rows_pcc, 2] # get PCC data for child u 
+                avg_pcc = np.mean(id_pcc) # get average PCC for child u 
+
+                id_ccc = ccc_data[id_rows_ccc, 2] # get CCC data for child u 
+                avg_ccc = np.mean(id_ccc) # get average CCC for child u 
+
+                id_mae = mae_data[id_rows_mae, 2] # get MAE data for child u 
+                avg_mae = np.mean(id_mae) # get average MAE for child u 
+
                 culture_icc = np.array([[u, avg_icc]]) if culture_icc is None else np.vstack((culture_icc, np.array([[u, avg_icc]])))
-                
+                culture_pcc = np.array([[u, avg_pcc]]) if culture_pcc is None else np.vstack((culture_pcc, np.array([[u, avg_pcc]])))
+                culture_ccc = np.array([[u, avg_ccc]]) if culture_ccc is None else np.vstack((culture_ccc, np.array([[u, avg_ccc]])))
+                culture_mae = np.array([[u, avg_mae]]) if culture_mae is None else np.vstack((culture_mae, np.array([[u, avg_mae]])))
+                                
             np.savetxt(ICC_CULTURE_DIR, culture_icc)
+            np.savetxt(PCC_CULTURE_DIR, culture_pcc)
+            np.savetxt(CCC_CULTURE_DIR, culture_ccc)
+            np.savetxt(MAE_CULTURE_DIR, culture_mae)
             
             culture_avg_icc[cultures.tolist().index(c), 0] = np.mean(culture_icc, axis=0)[1]
             culture_avg_icc[cultures.tolist().index(c), 1] = np.std(culture_icc[:,1])
             
+            culture_avg_pcc[cultures.tolist().index(c), 0] = np.mean(culture_pcc, axis=0)[1]
+            culture_avg_pcc[cultures.tolist().index(c), 1] = np.std(culture_pcc[:,1])
+
+            culture_avg_ccc[cultures.tolist().index(c), 0] = np.mean(culture_ccc, axis=0)[1]
+            culture_avg_ccc[cultures.tolist().index(c), 1] = np.std(culture_ccc[:,1])
+
+            culture_avg_mae[cultures.tolist().index(c), 0] = np.mean(culture_mae, axis=0)[1]
+            culture_avg_mae[cultures.tolist().index(c), 1] = np.std(culture_mae[:,1])
+
         np.savetxt(ICC_FINAL_DIR, culture_avg_icc)
+        np.savetxt(PCC_FINAL_DIR, culture_avg_pcc) 
+        np.savetxt(CCC_FINAL_DIR, culture_avg_ccc) 
+        np.savetxt(MAE_FINAL_DIR, culture_avg_mae) 
+
+        np.savetxt(FINAL_DIR, np.hstack((culture_avg_icc, culture_avg_pcc, culture_avg_ccc, culture_avg_mae)))
 
     return None 
 
