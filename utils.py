@@ -262,15 +262,15 @@ def process_summary(REPORTS_FOLDER_DIR):
     for report in FINAL_REPORTS_SUB_DIR: 
         CURRENT_REPORTS_SUB_DIR = os.path.join(REPORTS_FOLDER_DIR, report)
         ICC_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'icc_report.txt')
-        ICC_FINAL_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'icc_final_report.txt')
+        ICC_FINAL_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'icc_final_report.csv')
         PCC_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'pcc_report.txt')
-        PCC_FINAL_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'pcc_final_report.txt')
+        PCC_FINAL_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'pcc_final_report.csv')
         CCC_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'ccc_report.txt')
-        CCC_FINAL_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'ccc_final_report.txt')
+        CCC_FINAL_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'ccc_final_report.csv')
         MAE_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'mae_report.txt')
-        MAE_FINAL_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'mae_final_report.txt')
+        MAE_FINAL_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'mae_final_report.csv')
 
-        FINAL_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'final_report.txt')
+        FINAL_DIR = os.path.join(CURRENT_REPORTS_SUB_DIR, 'final_report.csv')
 
         icc_data = np.genfromtxt(ICC_DIR, delimiter=',')
         pcc_data = np.genfromtxt(PCC_DIR, delimiter=',')
@@ -361,12 +361,12 @@ def process_summary(REPORTS_FOLDER_DIR):
             culture_avg_mae[cultures.tolist().index(c), 0] = np.mean(culture_mae, axis=0)[1]
             culture_avg_mae[cultures.tolist().index(c), 1] = np.std(culture_mae[:,1])
 
-        np.savetxt(ICC_FINAL_DIR, culture_avg_icc)
-        np.savetxt(PCC_FINAL_DIR, culture_avg_pcc) 
-        np.savetxt(CCC_FINAL_DIR, culture_avg_ccc) 
-        np.savetxt(MAE_FINAL_DIR, culture_avg_mae) 
+        np.savetxt(ICC_FINAL_DIR, culture_avg_icc, delimiter=',')
+        np.savetxt(PCC_FINAL_DIR, culture_avg_pcc, delimiter=',') 
+        np.savetxt(CCC_FINAL_DIR, culture_avg_ccc, delimiter=',') 
+        np.savetxt(MAE_FINAL_DIR, culture_avg_mae, delimiter=',') 
 
-        np.savetxt(FINAL_DIR, np.hstack((culture_avg_icc, culture_avg_pcc, culture_avg_ccc, culture_avg_mae)))
+        np.savetxt(FINAL_DIR, np.hstack((culture_avg_icc, culture_avg_pcc, culture_avg_ccc, culture_avg_mae)), delimiter=',')
 
     return None 
 
