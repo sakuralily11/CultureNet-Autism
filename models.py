@@ -1,4 +1,4 @@
-from deepNet import deepNet
+from genNet import genNet
 
 from keras import backend as K
 import os
@@ -14,9 +14,9 @@ import random as rn
 rn.seed(12345)
 tf.set_random_seed(1234)
 
-def __run_deep_net(data, dtype, trainable=[True,True,True,True,True], weights=None, **kwargs):
+def __run_gen_net(data, dtype, trainable=[True,True,True,True,True], weights=None, **kwargs):
     """ 
-    Builds, trains, and tests basic deep model 
+    Builds, trains, and tests general deep model 
     Returns model weights 
 
     PARAMETERS 
@@ -30,7 +30,7 @@ def __run_deep_net(data, dtype, trainable=[True,True,True,True,True], weights=No
     _, _, id_test, x_train, x_val, x_test, y_train, y_val, y_test, _, _, culture_test, _, _, frame_test = data
 
     # Build model 
-    model = deepNet(input_dim=x_train.shape[1], trainable=trainable)
+    model = genNet(input_dim=x_train.shape[1], trainable=trainable)
     if weights is None: 
         model.train_model(x_train, y_train, x_val, y_val, dtype)
     else: 
@@ -44,9 +44,9 @@ def __run_deep_net(data, dtype, trainable=[True,True,True,True,True], weights=No
 
     return optimized_weights  
 
-def __run_deep_joint(data_cA, data_cB, prelim_data, dtype_prelim_cA, dtype_final_cA):
+def __run_culture_net(data_cA, data_cB, prelim_data, dtype_prelim_cA, dtype_final_cA):
     """ 
-    Builds, trains, and tests joint deep model 
+    Builds, trains, and tests culturalized model 
 
     PARAMETERS 
     data_cA: tuple of loaded data for culture A (culture being tested)
@@ -57,10 +57,10 @@ def __run_deep_joint(data_cA, data_cB, prelim_data, dtype_prelim_cA, dtype_final
     """ 
 
     # Build preliminary model 
-    prelim_weights = __run_deep_net(prelim_data, dtype_prelim_cA)
+    prelim_weights = __run_gen_net(prelim_data, dtype_prelim_cA)
 
     # Build culture-specific model (for culture A)
-    _ = __run_deep_net(data_cA, dtype_final_cA, trainable=[False,False,False,False,True], weights=prelim_weights)
+    _ = __run_gen_net(data_cA, dtype_final_cA, trainable=[False,False,False,False,True], weights=prelim_weights)
 
     return None 
 
@@ -76,8 +76,8 @@ def run_m1(c0_data, c1_data):
 
     print('---------- Running Model 1 ----------')
 
-    _ = __run_deep_net(c0_data, 'm1')
-    _ = __run_deep_net(c1_data, 'm1')
+    _ = __run_gen_net(c0_data, 'm1')
+    _ = __run_gen_net(c1_data, 'm1')
 
     print('---------- Completed Model 1 ----------')
 
@@ -97,11 +97,11 @@ def run_m2(c0_data, c1_data):
 
     """ Train on Serbia, Validate on Japan, Test on Japan """
     c0_m2_data = (c1_data[0], c0_data[1], c0_data[2], c1_data[3], c0_data[4], c0_data[5], c1_data[6], c0_data[7], c0_data[8], c1_data[9], c0_data[10], c0_data[11], c1_data[12], c0_data[13], c0_data[14])
-    _ = __run_deep_net(c0_m2_data, 'm2')
+    _ = __run_gen_net(c0_m2_data, 'm2')
 
     """ Train on Japan, Validate on Serbia, Test on Serbia """
     c1_m2_data = (c0_data[0], c1_data[1], c1_data[2], c0_data[3], c1_data[4], c1_data[5], c0_data[6], c1_data[7], c1_data[8], c0_data[9], c1_data[10], c1_data[11], c0_data[12], c1_data[13], c1_data[14])
-    _ = __run_deep_net(c1_m2_data, 'm2')
+    _ = __run_gen_net(c1_m2_data, 'm2')
 
     print('---------- Completed Model 2 ----------')
 
@@ -122,10 +122,10 @@ def run_m3(c0_data_merged, c1_data_merged):
 
     """ Train on both cultures, test on Japan """
 
-    c0_m3_weights = __run_deep_net(c0_data_merged, 'm3') 
+    c0_m3_weights = __run_gen_net(c0_data_merged, 'm3') 
 
     """ Train on both cultures, test on Serbia """
-    c1_m3_weights = __run_deep_net(c1_data_merged, 'm3') 
+    c1_m3_weights = __run_gen_net(c1_data_merged, 'm3') 
 
     print('---------- Completed Model 3 ----------')
 
@@ -150,16 +150,16 @@ def run_m4(c0_data, c1_data, c0_data_merged, c1_data_merged, c0_m3_weights, c1_m
     """ Train on both cultures, fine tune and test on Japan """
 
     if c0_m3_weights is None: 
-        __run_deep_joint(c0_data, c1_data, c0_data_merged, 'm4_prelim', 'm4')
+        __run_culture_net(c0_data, c1_data, c0_data_merged, 'm4_prelim', 'm4')
     else: 
-        _ = __run_deep_net(c0_data, 'm4', trainable=[False,False,False,False,True], weights=c0_m3_weights)
+        _ = __run_gen_net(c0_data, 'm4', trainable=[False,False,False,False,True], weights=c0_m3_weights)
 
     """ Train on both cultures, fine tune and test on Serbia """ 
 
     if c1_m3_weights is None: 
-        __run_deep_joint(c1_data, c0_data, c1_data_merged, 'm4_prelim', 'm4')
+        __run_culture_net(c1_data, c0_data, c1_data_merged, 'm4_prelim', 'm4')
     else:
-        _ = __run_deep_net(c1_data, 'm4', trainable=[False,False,False,False,True], weights=c1_m3_weights)
+        _ = __run_gen_net(c1_data, 'm4', trainable=[False,False,False,False,True], weights=c1_m3_weights)
 
     print('---------- Completed Model 4 ----------')
 
@@ -178,10 +178,10 @@ def run_m5(c0_data_targetRep, c1_data_targetRep):
     print('---------- Running Model 5 ----------')
 
     """ Train and test on Japan """ 
-    _ = __run_deep_net(c0_data_targetRep, 'm5')
+    _ = __run_gen_net(c0_data_targetRep, 'm5')
 
     """ Train and test on Serbia """ 
-    _ = __run_deep_net(c1_data_targetRep, 'm5')
+    _ = __run_gen_net(c1_data_targetRep, 'm5')
 
     print('---------- Completed Model 5 ----------')
 
@@ -200,10 +200,10 @@ def run_m6(c0_data_targetOnly, c1_data_targetOnly):
     print('---------- Running Model 6 ----------')
 
     """ Train and test on Japan """ 
-    _ = __run_deep_net(c0_data_targetOnly, 'm6')
+    _ = __run_gen_net(c0_data_targetOnly, 'm6')
 
     """ Train and test on Serbia """ 
-    _ = __run_deep_net(c1_data_targetOnly, 'm6')
+    _ = __run_gen_net(c1_data_targetOnly, 'm6')
 
     print('---------- Completed Model 6 ----------')
 
@@ -224,11 +224,11 @@ def run_prelim_m7(m7_joint_data, c0_data_All, c1_data_All):
     print('---------- Running Preliminary Model 7 ----------')
 
     # Part A: Joint Model (train & validate on 20% of all children) 
-    prelim_weights = __run_deep_net(m7_joint_data, 'm7_joint_prelim')
+    prelim_weights = __run_gen_net(m7_joint_data, 'm7_joint_prelim')
 
     # Part B: Culture Specific Model (train & validate on 20% of all children)
-    c0_m7_prelim_weights = __run_deep_net(c0_data_All, 'm7_prelim', trainable=[False,False,False,False,True], weights=prelim_weights)
-    c1_m7_prelim_weights = __run_deep_net(c1_data_All, 'm7_prelim', trainable=[False,False,False,False,True], weights=prelim_weights)
+    c0_m7_prelim_weights = __run_gen_net(c0_data_All, 'm7_prelim', trainable=[False,False,False,False,True], weights=prelim_weights)
+    c1_m7_prelim_weights = __run_gen_net(c1_data_All, 'm7_prelim', trainable=[False,False,False,False,True], weights=prelim_weights)
 
     print('---------- Completed Preliminary Model 7 ----------')
 
@@ -250,8 +250,8 @@ def run_m7(c0_data_targetOnly, c1_data_targetOnly, c0_m7_prelim_weights, c1_m7_p
     print('---------- Running Model 7 ----------')
 
     # Part C: Child Specific Model 
-    _ = __run_deep_net(c0_data_targetOnly, 'm7', trainable=[False,False,False,False,True], weights=c0_m7_prelim_weights)
-    _ = __run_deep_net(c1_data_targetOnly, 'm7', trainable=[False,False,False,False,True], weights=c1_m7_prelim_weights)
+    _ = __run_gen_net(c0_data_targetOnly, 'm7', trainable=[False,False,False,False,True], weights=c0_m7_prelim_weights)
+    _ = __run_gen_net(c1_data_targetOnly, 'm7', trainable=[False,False,False,False,True], weights=c1_m7_prelim_weights)
 
     print('---------- Completed Model 7 ----------')
 
