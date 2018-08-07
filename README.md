@@ -6,17 +6,17 @@ The baseline generalized deep models (GenNet) are deep convolutional networks co
 
 The culturalized deep models (CultureNet) follow the same architecture of GenNet; however, after training all layers with joint-culture data, the model freezes network parameters and uses culture-specific and/or child-specific data to fine-tune the last layer of the network. 
 
-Face image data are unidentifiable facial features, obtained in the output of the fine-tuned residual network (ResNet), a deep network optimized for object classification. 
+Face image data, which act as input for these models, are unidentifiable facial features, obtained in the output of the fine-tuned residual network (ResNet), a deep network optimized for object classification. 
 
 ## Citation 
 
 If you use this code or these benchmarks in your research, **please cite the following publications**: 
 
-Ognjen Rudovic, Jaeryoung Lee, Lea Mascarell-Maricic, Björn Schuller, and Rosalind Picard. Measuring Engagement in Robot-Assisted Autism Therapy: A Cross-Cultural Study. 
+Rudovic, O., Lee, J., Mascarell-Maricic, L., Schuller, B., Picard, R. "Measuring Engagement in Robot-assisted Autism Therapy: A Cross-cultural Study". Frontiers in Robotics and AI (2017).
 
 Available via [Frontiers in Robotics and AI](https://doi.org/10.3389/frobt.2017.00036).
 
-Ognjen Rudovic, Yuria Utsumi, Jaeryoung Lee, Javier Hernandez, Eduardo Castelló Ferrer, Björn Schuller, and Rosalind Picard. CultureNet: A Personalized Deep Learning Approach for Engagement Intensity Estimation from Face Images of Children with Autism. 
+Rudovic, O., Utsumi, Y., Lee, J., Hernandez, J., Castello Ferrer, E., Schuller, B., Picard, R. "CultureNet: A Deep Learning Approach for Engagement Intensity Estimation from Face Images of Children with Autism." IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS 2018).
 
 Available [here](https://dam-prod.media.mit.edu/x/2018/08/04/iros2018_RudovicEtAl.pdf). 
 
@@ -40,7 +40,7 @@ The model is trained on data of children from C0 and tested on data of children 
 The model is trained on data from both cultures, then tested on each culture. Note: This is the first step of model 4. 
 
 ### Model 4 - Subject Independent, Joint-Culture CultureNet 
-The joint deep model is trained on data from both cultures, then the last layer is fine-tuned to each culture separately. Note: This is the first two steps of model 7. 
+The joint deep model is trained on data from both cultures, then the last layer is fine-tuned to each culture separately. Note: These are the first two steps of model 7. 
 
 ### Model 5 - Subject Dependent, Within-Culture GenNet 
 The model is trained and tested on data of children from the same culture. Training data also includes 20% of target child data. Note: This is the subject-dependent version of model 1. 
