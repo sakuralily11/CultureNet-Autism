@@ -1,6 +1,6 @@
 # CultureNet 
 
-CultureNet is a package for building generalized and culturalized deep models to estimate engagement levels from face images of autistic children. 
+CultureNet is a package for building generalized and culturalized deep models to estimate engagement levels from face images of children with Autism Spectrum Condition. 
 
 The baseline generalized deep models (GenNet) are deep convolutional networks composed of layers of the ResNet, a pre-trained deep network, as well as additional network layers. 
 
@@ -53,7 +53,7 @@ The joint deep model is trained on data from both cultures, then the last layer 
 
 ## Getting Started 
 
-CultureNet allows for prediction of engagement levels from facial features of autistic children, obtained in the output of ResNet. 
+CultureNet allows for prediction of engagement levels from facial features of children with Autism Spectrum Condition, obtained in the output of ResNet. 
 
 ### Installation 
 
