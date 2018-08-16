@@ -10,7 +10,7 @@ Face image data, which act as input for these models, are unidentifiable facial 
 
 ## Citation 
 
-If you use this code or these benchmarks in your research, **please cite the following publications**: 
+If you use this code, a modified version of this code, or these benchmarks in your research, **please cite the following publications**: 
 
 Rudovic, O., Lee, J., Mascarell-Maricic, L., Schuller, B., Picard, R. "Measuring Engagement in Robot-assisted Autism Therapy: A Cross-cultural Study". Frontiers in Robotics and AI (2017).
 
