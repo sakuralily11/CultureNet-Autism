@@ -18,7 +18,7 @@ Available via [Frontiers in Robotics and AI](https://doi.org/10.3389/frobt.2017.
 
 Rudovic, O., Utsumi, Y., Lee, J., Hernandez, J., Castello Ferrer, E., Schuller, B., Picard, R. "CultureNet: A Deep Learning Approach for Engagement Intensity Estimation from Face Images of Children with Autism." IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS 2018).
 
-Available [here](https://dam-prod.media.mit.edu/x/2018/08/04/iros2018_RudovicEtAl.pdf). 
+Available via [ResearchGate](https://www.researchgate.net/publication/326912515_CultureNet_A_Deep_Learning_Approach_for_Engagement_Intensity_Estimation_from_Face_Images_of_Children_with_Autism). 
 
 ## Deep Learning Models 
 
